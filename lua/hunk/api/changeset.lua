@@ -4,6 +4,9 @@ local fs = require("hunk.api.fs")
 
 local M = {}
 
+---@param a table<string, any>
+---@param b table<string, any>
+---@return string[]
 local function merge_lists(a, b)
   local seen = {}
 
@@ -21,6 +24,11 @@ local function merge_lists(a, b)
   return utils.get_keys(seen)
 end
 
+--- Load a changeset by comparing two directories.
+---@param left string Absolute path to left directory
+---@param right string Absolute path to right directory
+---@return table changeset Map of filepath to change objects
+---@return string[] files List of file paths found
 function M.load_changeset(left, right)
   local left_files = fs.scan_dir(left)
   local right_files = fs.scan_dir(right)
@@ -99,6 +107,9 @@ local function write_change(change, output_dir)
   fs.move_file(change.left_file.path, output_file)
 end
 
+--- Write the changeset to the output directory.
+---@param changeset table Map of filepath to change objects
+---@param output_dir string Absolute path to output directory
 function M.write_changeset(changeset, output_dir)
   vim.fn.mkdir(output_dir, "p")
 

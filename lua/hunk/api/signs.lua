@@ -17,12 +17,18 @@ local M = {
   },
 }
 
+--- Clear all hunk signs from a buffer.
+---@param buf number Buffer handle
 function M.clear_signs(buf)
   vim.fn.sign_unplace("Hunk", {
     buffer = buf,
   })
 end
 
+--- Place a sign at a specific line in a buffer.
+---@param buf number Buffer handle
+---@param sign table Sign descriptor with .name field
+---@param linenr number Line number (1-indexed)
 function M.place_sign(buf, sign, linenr)
   vim.fn.sign_place(0, "Hunk", sign.name, buf, {
     lnum = linenr,
@@ -30,6 +36,7 @@ function M.place_sign(buf, sign, linenr)
   })
 end
 
+--- Define the sign symbols used by hunk.nvim.
 function M.define_signs()
   vim.fn.sign_define({
     {

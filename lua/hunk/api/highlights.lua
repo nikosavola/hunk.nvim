@@ -1,5 +1,8 @@
 local M = {}
 
+--- Set window-local highlight overrides.
+---@param winid number Window ID
+---@param highlights string[] List of highlight link strings (e.g. "DiffAdd:MyHl")
 function M.set_win_hl(winid, highlights)
   vim.api.nvim_set_option_value("winhl", table.concat(highlights, ","), {
     win = winid,
@@ -13,6 +16,7 @@ local function color_as_hex(color)
   return string.format("#%06x", color)
 end
 
+--- Define all hunk.nvim highlight groups.
 function M.define_highlights()
   local diff_delete_highlight = vim.api.nvim_get_hl(0, {
     name = "DiffDelete",

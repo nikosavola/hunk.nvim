@@ -1,0 +1,33 @@
+name: Generate Vimdoc
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "README.md"
+  workflow_dispatch:
+
+jobs:
+  panvimdoc:
+    name: Generate Vimdoc
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate vimdoc
+        uses: kdheepak/panvimdoc@v4
+        with:
+          vimdoc: hunk
+          description: "A tool for splitting diffs in Neovim"
+          toc: true
+          demojify: true
+          treesitter: true
+
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-generate vimdoc"
+          file_pattern: "doc/*"

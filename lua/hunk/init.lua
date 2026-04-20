@@ -5,6 +5,7 @@ local ui = require("hunk.ui")
 
 local M = {}
 
+---@type table?
 local CONTEXT
 
 local function value_or_default(value, default)
@@ -208,6 +209,10 @@ local function init()
   api.highlights.define_highlights()
 end
 
+--- Start the diff editor with two or three directories.
+---@param left string Absolute path to left directory
+---@param right string Absolute path to right directory
+---@param output string? Absolute path to output directory (defaults to right)
 function M.start(left, right, output)
   if not initialised then
     init()
@@ -248,6 +253,8 @@ function M.start(left, right, output)
   set_global_bindings(layout, tree.buf)
 end
 
+--- Setup the plugin with user configuration.
+---@param opts hunk.Config? User configuration overrides
 function M.setup(opts)
   opts = opts or {}
   config.update_config(opts)
