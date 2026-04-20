@@ -1,0 +1,189 @@
+*hunk.txt*    A tool for splitting diffs in Neovim
+
+Author: Julien Vincent
+License: MIT
+
+==============================================================================
+CONTENTS                                                      *hunk-contents*
+
+  1. Introduction ............................ |hunk-introduction|
+  2. Installation ............................ |hunk-installation|
+  3. Configuration ........................... |hunk-configuration|
+  4. Commands ................................ |hunk-commands|
+  5. Keybindings ............................. |hunk-keybindings|
+  6. Highlights .............................. |hunk-highlights|
+  7. Hooks ................................... |hunk-hooks|
+  8. Health Check ............................ |hunk-health|
+
+==============================================================================
+1. INTRODUCTION                                            *hunk-introduction*
+
+hunk.nvim is a Neovim tool for splitting/editing diffs. It operates over a
+`left` and `right` directory, producing a diff of the two which can be
+inspected and modified. The DiffEditor allows selecting changes by file, hunk,
+or individual line to produce a new partial diff.
+
+This was primarily built to be used with jujutsu (https://github.com/jj-vcs/jj)
+as an alternative diff-editor to its `:builtin` option, but it's designed
+generically enough that it can be used for other use cases.
+
+==============================================================================
+2. INSTALLATION                                            *hunk-installation*
+
+Using lazy.nvim (https://github.com/folke/lazy.nvim):
+>lua
+  {
+    "julienvincent/hunk.nvim",
+    cmd = { "DiffEditor" },
+    config = function()
+      require("hunk").setup()
+    end,
+  }
+<
+
+Dependencies:~
+  - nui.nvim (required): https://github.com/MunifTanjim/nui.nvim
+  - nvim-web-devicons (optional): https://github.com/nvim-tree/nvim-web-devicons
+  - mini.icons (optional): https://github.com/echasnovski/mini.icons
+
+==============================================================================
+3. CONFIGURATION                                          *hunk-configuration*
+
+                                                               *hunk.setup()*
+`require("hunk").setup({opts})`
+
+  Configure hunk.nvim with the given options. All fields are optional and will
+  fall back to sensible defaults.
+
+  Parameters:~
+    {opts}  `(hunk.Config?)` Configuration table
+
+  Default configuration:
+>lua
+  require("hunk").setup({
+    keys = {
+      global = {
+        quit = { "q" },
+        accept = { "<leader><Cr>" },
+        focus_tree = { "<leader>e" },
+      },
+      tree = {
+        expand_node = { "l", "<Right>" },
+        collapse_node = { "h", "<Left>" },
+        open_file = { "<Cr>" },
+        toggle_file = { "a" },
+      },
+      diff = {
+        toggle_hunk = { "A" },
+        toggle_line = { "a" },
+        toggle_line_pair = { "s" },
+        prev_hunk = { "[h" },
+        next_hunk = { "]h" },
+        toggle_focus = { "<Tab>" },
+      },
+    },
+    ui = {
+      tree = {
+        mode = "nested",
+        width = 35,
+      },
+      layout = "vertical",
+      confirm_before_quit = false,
+    },
+    icons = {
+      enable_file_icons = true,
+      selected = "󰡖",
+      deselected = "",
+      partially_selected = "󰛲",
+      folder_open = "",
+      folder_closed = "",
+      expanded = "",
+      collapsed = "",
+    },
+    hooks = {
+      on_tree_mount = function(_context) end,
+      on_diff_mount = function(_context) end,
+    },
+  })
+<
+
+==============================================================================
+4. COMMANDS                                                    *hunk-commands*
+
+                                                                *:DiffEditor*
+`:DiffEditor {left} {right} [{output}]`
+
+  Open the diff editor comparing {left} and {right} directories. Changes will
+  be written to {output} if provided, otherwise {right} is used.
+
+==============================================================================
+5. KEYBINDINGS                                              *hunk-keybindings*
+
+Press `g?` at any time to open the help popup showing all active keybindings.
+
+Global keybindings:~
+  `q`              Quit without saving (exits with non-zero code)
+  `<leader><Cr>`   Accept changes and exit
+  `<leader>e`      Focus the file tree
+
+Tree view keybindings:~
+  `l`, `<Right>`   Expand tree node or preview file
+  `h`, `<Left>`    Collapse tree node
+  `<Cr>`           Open file under cursor
+  `a`              Toggle all hunks in file under cursor
+
+Diff view keybindings:~
+  `A`              Toggle entire hunk under cursor
+  `a`              Toggle line under cursor
+  `s`              Toggle line pair (both sides)
+  `[h`             Jump to previous hunk
+  `]h`             Jump to next hunk
+  `<Tab>`          Toggle focus between left/right
+
+==============================================================================
+6. HIGHLIGHTS                                                *hunk-highlights*
+
+The following highlight groups are defined with `default = true` so you can
+override them in your colorscheme:
+
+  `HunkTreeFileAdded`      Default: links to `Green`
+  `HunkTreeFileDeleted`    Default: links to `Red`
+  `HunkTreeFileModified`   Default: links to `Blue`
+  `HunkTreeDirIcon`        Default: links to `Yellow`
+  `HunkTreeSelectionIcon`  Default: links to `Comment`
+  `HunkDiffAddAsDelete`    Default: based on `DiffDelete`
+  `HunkDiffDeleteDim`      Default: links to `Comment`
+
+==============================================================================
+7. HOOKS                                                        *hunk-hooks*
+
+Hooks can be used to bind keys with complex logic or to set buffer/window
+local options on the tree or diff splits.
+
+                                                     *hunk-hooks-on_tree_mount*
+`on_tree_mount`({context})
+
+  Called after the tree buffer is created and mounted.
+
+  Parameters:~
+    {context.buf}   `(number)` Buffer handle
+    {context.tree}  `(NuiTree)` The NUI tree instance
+    {context.opts}  `(table)` Options passed during creation
+
+                                                     *hunk-hooks-on_diff_mount*
+`on_diff_mount`({context})
+
+  Called after each diff buffer is created and mounted.
+
+  Parameters:~
+    {context.buf}   `(number)` Buffer handle
+    {context.win}   `(number)` Window handle
+
+==============================================================================
+8. HEALTH CHECK                                                  *hunk-health*
+
+Run `:checkhealth hunk` to verify that all required and optional dependencies
+are installed correctly.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
