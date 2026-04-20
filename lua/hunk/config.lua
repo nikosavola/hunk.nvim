@@ -57,14 +57,49 @@ local M = {
   },
 
   hooks = {
-    ---@param _context { buf: number, tree: NuiTree, opts: table }
     on_tree_mount = function(_context) end,
-    ---@param _context { buf: number, win: number }
     on_diff_mount = function(_context) end,
   },
 }
 
+local function validate_config(opts)
+  if opts.ui then
+    if opts.ui.layout then
+      if opts.ui.layout ~= "vertical" and opts.ui.layout ~= "horizontal" then
+        return false, "config.ui.layout must be 'vertical' or 'horizontal', got: " .. tostring(opts.ui.layout)
+      end
+    end
+    if opts.ui.tree then
+      if opts.ui.tree.mode then
+        if opts.ui.tree.mode ~= "nested" and opts.ui.tree.mode ~= "flat" then
+          return false, "config.ui.tree.mode must be 'nested' or 'flat', got: " .. tostring(opts.ui.tree.mode)
+        end
+      end
+      if opts.ui.tree.width then
+        if type(opts.ui.tree.width) ~= "number" or opts.ui.tree.width < 1 then
+          return false, "config.ui.tree.width must be a positive number, got: " .. tostring(opts.ui.tree.width)
+        end
+      end
+    end
+  end
+  if opts.hooks then
+    if opts.hooks.on_tree_mount and type(opts.hooks.on_tree_mount) ~= "function" then
+      return false, "config.hooks.on_tree_mount must be a function"
+    end
+    if opts.hooks.on_diff_mount and type(opts.hooks.on_diff_mount) ~= "function" then
+      return false, "config.hooks.on_diff_mount must be a function"
+    end
+  end
+  return true
+end
+
 function M.update_config(new_config)
+  local ok, err = validate_config(new_config)
+  if not ok then
+    vim.notify("[hunk.nvim] Invalid configuration: " .. err, vim.log.levels.ERROR)
+    return
+  end
+
   local config = vim.tbl_deep_extend("force", M, new_config)
   for key, value in pairs(config) do
     M[key] = value
