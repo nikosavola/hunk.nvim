@@ -3,6 +3,10 @@ local fs = require("hunk.api.fs")
 
 local M = {}
 
+--- Compute the diff hunks between left and right file content.
+---@param left table Left file descriptor (may have .symlink and .path fields)
+---@param right table Right file descriptor (may have .symlink and .path fields)
+---@return table[] hunks List of hunks, each with .left and .right {start_line, count}
 function M.diff_file(left, right)
   if left.symlink or right.symlink then
     return {}
@@ -52,6 +56,11 @@ local function alternating_hunk_lines(hunk)
   end
 end
 
+--- Apply a diff with selected lines to produce the output content.
+---@param left string[] Left file content as lines
+---@param right string[] Right file content as lines
+---@param change table The change object with hunks and selected_lines
+---@return string[] result The resulting file content as lines
 function M.apply_diff(left, right, change)
   local hunks = change.hunks
   local selected_lines = change.selected_lines

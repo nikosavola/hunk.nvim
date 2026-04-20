@@ -1,5 +1,7 @@
 local M = {}
 
+---@param path string A file path with "/" separators
+---@return string[] parts Split path components
 local function split_path(path)
   local parts = {}
   for part in string.gmatch(path, "([^/]+)") do
@@ -53,6 +55,9 @@ local function sort_tree(tree)
   end
 end
 
+--- Build a nested file tree structure from a changeset.
+---@param changeset table Map of filepath to change objects
+---@return table[] tree Nested tree nodes
 function M.build_file_tree(changeset)
   local tree = { children = {} }
   for _, change in pairs(changeset) do
@@ -64,6 +69,9 @@ function M.build_file_tree(changeset)
   return tree.children
 end
 
+--- Build a flat file tree (no nesting) from a changeset.
+---@param changeset table Map of filepath to change objects
+---@return table[] nodes Flat list of file nodes
 function M.build_flat_file_tree(changeset)
   local nodes = {}
   for _, change in pairs(changeset) do
@@ -79,6 +87,9 @@ function M.build_flat_file_tree(changeset)
   return nodes
 end
 
+--- Find the first file node in a tree (depth-first).
+---@param tree table[] Tree nodes
+---@return table? node First file node found, or nil
 function M.find_first_file_in_tree(tree)
   local child = tree[1]
   if not child then

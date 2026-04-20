@@ -2,6 +2,9 @@ local M = {}
 
 local uv = vim.loop
 
+--- Recursively scan a directory and return all files as a map.
+---@param dir string Absolute path to directory
+---@return table<string, table> files Map of relative path to file descriptor
 function M.scan_dir(dir)
   dir = (dir:gsub("/+$", ""))
   local out = {}
@@ -44,6 +47,9 @@ function M.scan_dir(dir)
   return out
 end
 
+--- Read a file's full content as a string.
+---@param file_path string Absolute path to file
+---@return string? content File content, or nil if file cannot be opened
 function M.read_file(file_path)
   local file = io.open(file_path, "r")
   if not file then
@@ -54,6 +60,9 @@ function M.read_file(file_path)
   return content
 end
 
+--- Read a file as an array of lines.
+---@param file_path string Absolute path to file
+---@return string[] lines
 function M.read_file_as_lines(file_path)
   local content = vim.split(M.read_file(file_path) or "", "\n")
   if content[#content] == "" then
@@ -62,20 +71,30 @@ function M.read_file_as_lines(file_path)
   return content
 end
 
+--- Create parent directories for the given file path.
+---@param file_path string Absolute path to file
 function M.make_parents(file_path)
   local parent_dir = file_path:match("(.*/)")
   vim.fn.mkdir(parent_dir, "p")
 end
 
+--- Move a file from src to dst.
+---@param src string Source path
+---@param dst string Destination path
 function M.move_file(src, dst)
   M.make_parents(dst)
   vim.fn.system({ "mv", src, dst })
 end
 
+--- Remove a file.
+---@param file string Path to file
 function M.rm_file(file)
   vim.fn.system({ "rm", file })
 end
 
+--- Write an array of lines to a file.
+---@param file_path string Absolute path to file
+---@param content string[] Lines to write
 function M.write_file(file_path, content)
   M.make_parents(file_path)
 
